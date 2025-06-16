@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="/css/admin-style.css">
+</head>
+<body>
+    <a href="/admin/logout" class="btn logout-btn">Logout</a>
+    <div class="container">
+        
+        <!-- MODIFIED HEADER with Download Button -->
+        <div class="dashboard-header">
+            <h1>Contact Form Submissions</h1>
+            <a href="/admin/download" class="btn download-btn">Download as Excel (CSV)</a>
+        </div>
+
+        <!-- NEW: Message Box for feedback -->
+        <% if (locals.query && query.message) { %>
+            <div class="message-box">
+                <%= query.message %>
+            </div>
+        <% } %>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Message</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% submissions.forEach(sub => { %>
+                    <tr>
+                        <td><%= new Date(sub.submittedAt).toLocaleString() %></td>
+                        <td><%= sub.name %></td>
+                        <td><a href="mailto:<%= sub.email %>"><%= sub.email %></a></td>
+                        <td><%= sub.phone || 'N/A' %></td>
+                        <td><%= sub.message %></td>
+                    </tr>
+                <% }) %>
+                <% if (submissions.length === 0) { %>
+                    <tr>
+                        <td colspan="5" style="text-align: center;">No submissions yet.</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
