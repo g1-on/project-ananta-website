@@ -4,10 +4,10 @@ const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
 const session = require('express-session');
+// 1. Import connect-mongo
+const MongoStore = require('connect-mongo');
 
-// Import routes
-const apiRoutes = require('./routes/api');
-const adminRoutes = require('./routes/admin');
+// ... (imports for routes, etc.)
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -20,17 +20,24 @@ mongoose.connect(process.env.MONGO_URI, {
   .catch(err => console.error(err));
 
 // --- Middleware ---
-app.use(express.json()); // To parse JSON bodies
-app.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies (for form submissions)
-app.use(express.static(path.join(__dirname, 'public'))); // Serve static files from 'public' folder
+// ... (app.use(express.json), etc.)
 
 // --- Session Middleware ---
+// 2. Update the session configuration
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false } // Set to true if using HTTPS
+    saveUninitialized: false, // Set to false for best practice with login sessions
+    store: MongoStore.create({ 
+        mongoUrl: process.env.MONGO_URI 
+    }),
+    cookie: { 
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 24 // e.g., 1 day
+    }
 }));
+
 
 // --- View Engine Setup ---
 app.set('views', path.join(__dirname, 'views'));
